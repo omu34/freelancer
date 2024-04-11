@@ -29,8 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post('/create', [FreelancerUpdateProfileController::class, 'createProfile']);
-    Route::put('/profile/edit', [FreelancerUpdateProfileController::class, 'editProfile']);
-    Route::delete('/profile/delete', [FreelancerUpdateProfileController::class, 'deleteProfile']);
-    Route::post('/profile/approval', [FreelancerUpdateProfileController::class, 'sendForApproval']);
-    Route::post('/account/approve', [FreelancerUpdateProfileController::class, 'approveAccount']);
+    Route::put('/edit', [FreelancerUpdateProfileController::class, 'editProfile']);
+    Route::delete('/delete', [FreelancerUpdateProfileController::class, 'deleteProfile']);
+    Route::post('/approval', [FreelancerUpdateProfileController::class, 'sendForApproval']);
+    Route::post('/approve', [FreelancerUpdateProfileController::class, 'approveAccount']);
 });

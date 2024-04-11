@@ -32,7 +32,6 @@ class FreelancerUpdateProfileController extends Controller
                 'email' => 'required|email|unique:profiles',
                 'uuid'=>'required',
                 'location'=>'required'
-                // Add more validation rules as needed
             ]);
 
             if ($validator->fails()) {
