@@ -2,68 +2,109 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Http\Requests\StoreProfileRequest;
 use App\Models\Profile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Database\Eloquent\Exception;
-use App\Events\ProfileSubmittedForApprovalEvent;
-use App\Notifications\AccountApprovedNotification;
+use App\Notifications\ProfileApprovalNotification;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Events\AccountApprovedEvent as EventsAccountApprovedEvent;
+
 
 
 class FreelancerUpdateProfileController extends Controller
 {
-    // Create Profile
-    public function createProfile(Request $request)
+    /**
+     * Create or update a user profile.
+     *
+     * @param ProfileRequest $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function userCreateOrUpdateProfileAndSendNotification(StoreProfileRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'firstname' => 'required',
-                'lastname' => 'required',
-                'profilename' => 'required|unique:profiles',
-                'country_id' => 'required',
-                'city_id' => 'required',
-                'user_id'=>'required',
-                'phone' => 'required|unique:profiles',
-                'email' => 'required|email|unique:profiles',
-                'uuid'=>'required',
-                'location'=>'required'
-            ]);
-
-            if ($validator->fails()) {
-                throw new \Illuminate\Validation\ValidationException($validator);
-            }
-
-            $profile = new Profile();
-            $profile->fill($request->all());
+            $profile = Profile::where('user_id', Auth::id())->firstOrNew();
+            $profile->fill($request->validated());
             $profile->user_id = Auth::id();
             $profile->save();
 
-            return response()->json(['message' => 'Profile created successfully'], 201);
+            // Send verification email notification (uncomment if desired)
+            Auth::user()->notify(new ProfileApprovalNotification());
+
+            return response()->json(['message' => 'Profile updated/created successfully'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
-    // Edit Profile
-    public function editProfile(Request $request)
+    /**
+     * Fetch the authenticated user's profile.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function userFetchOwnProfile(Request $request)
     {
         try {
-            $profile = Profile::where('user_id', Auth::id())->firstOrFail();
+            $profile = Auth::user()->profile;
 
-            $profile->update($request->all());
+            if (!$profile) {
+                throw new \Exception('Profile not found');
+            }
 
-            return response()->json(['message' => 'Profile updated successfully']);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Profile not found'], 404);
+            return response()->json(['profile' => $profile], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Fetch all profiles (for Admin).
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function adminFetchAllProfiles(Request $request)
+    {
+        // Implement authorization check here (e.g., using policies or middleware)
+        if (!Auth::user()->hasPermissionTo('view_profiles')) {
+            return response()->json(['error' => 'Unauthorized to view all profiles'], 403);
+        }
+
+        try {
+            $profiles = Profile::all();
+            return response()->json(['profiles' => $profiles], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Approve a profile (for Admin).
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function adminApproveProfileAndSendNotification(Request $request)
+    {
+        // Implement authorization check here (e.g., using policies or middleware)
+        if (!Auth::user()->hasPermissionTo('approve_profiles')) {
+            return response()->json(['error' => 'Unauthorized to approve profiles'], 403);
+        }
+
+        try {
+            $profile = Profile::findOrFail($request->profile_id);
+            $profile->update(['approved' => true]);
+
+            $profile->user->notify(new ProfileApprovalNotification());
+
+            return response()->json(['message' => 'Profile approved successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
 
     // Delete Profile
     public function deleteProfile(Request $request)
@@ -80,73 +121,4 @@ class FreelancerUpdateProfileController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
-    // Send Profile for Approval
-    public function sendForApproval(Request $request)
-{
-    try {
-        $user = Auth::user();
-        $profile = $user->profile;
-
-        if (!$profile) {
-            throw new \Exception('Profile not found');
-        }
-
-        if ($profile->approved) {
-            throw new \Exception('Profile is already approved');
-        }
-
-        // Mark profile as pending approval and potentially add a timestamp
-        $profile->update(['approved' => false, 'submitted_at' => now()]);
-
-        event(new ProfileSubmittedForApprovalEvent($profile));
-
-        return response()->json(['message' => 'Profile sent for approval']);
-    } catch (\Exception $e) {
-        Log::error('Sending profile for approval failed: ' . $e->getMessage());
-        return response()->json(['error' => 'An error occurred. Please try again later.'], 500);
-    }
-}
-
-
-
-public function approveAccount(Request $request)
-{
-    try {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        if ($validator->fails()) {
-            throw new \Illuminate\Validation\ValidationException($validator);
-        }
-
-        $user = User::find($request->user_id);
-
-        if (!$user) {
-            throw new \Exception('User not found');
-        }
-
-        // Authorization check using Spatie Permissions (assuming it's enabled)
-        if (!Auth::user()->hasPermissionTo('approve_account')) {
-            throw new \Exception('Unauthorized to perform this action');
-        }
-
-        $user->update(['approved' => true, 'approved_at' => now()]);
-
-        $user->notify(new AccountApprovedNotification());
-
-        // Fire event after account approval
-        event(new EventsAccountApprovedEvent($user));
-
-        return response()->json(['message' => 'Account approved successfully']);
-    } catch (\Exception $e) {
-        Log::error('Account approval failed: ' . $e->getMessage());
-        return response()->json(['error' => 'An error occurred. Please try again later.'], 500);
-    }
-}
-
-
-
-
 }

@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AccountApprovedNotification extends Notification
+class ProfileApprovalNotification extends Notification
 {
     use Queueable;
 

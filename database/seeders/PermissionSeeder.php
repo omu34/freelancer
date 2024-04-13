@@ -15,9 +15,13 @@ class PermissionSeeder extends Seeder
     public function run()
     {
         Permission::create(['name' => 'approve_account']);
+        Permission::create(['name' => 'view_profiles']);
 
-        // Assign permissions to roles as needed
+
         $adminRole = Role::findByName('admin');
         $adminRole->hasPermissionTo('approve_account');
+
+        $adminRole = Role::findByName('freelancer');
+        $adminRole->hasPermissionTo('view_profiles');
     }
 }

@@ -5,10 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ *
+ *
+ * @property-read \App\Models\City|null $city
+ * @property-read \App\Models\Country|null $country
+ * @property-read \App\Models\User|null $user
+ * @method static \Database\Factories\ProfiledFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder|Profiled newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Profiled newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Profiled query()
+ * @mixin \Eloquent
+ */
 class Profile extends Model
 {
     use HasFactory;
-    protected $table = 'profile';
+
+    // protected $table = 'profiles';
 
     protected $fillable = [
         'firstname',
@@ -19,7 +32,6 @@ class Profile extends Model
         'user_id',
         'phone',
         'email',
-        'uuid',
         'location',
     ];
 
@@ -38,3 +50,6 @@ class Profile extends Model
         return $this->belongsTo(City::class);
     }
 }
+
+
+

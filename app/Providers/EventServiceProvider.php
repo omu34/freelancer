@@ -2,11 +2,8 @@
 
 namespace App\Providers;
 
-use App\Events\AccountApprovedEvent;
 use Illuminate\Support\ServiceProvider;
-use App\Listeners\AccountApprovedListener;
-use App\Listeners\ProfileSubmittedForApprovalListener;
-use App\Notifications\ProfileSubmittedForApprovalNotification;
+use App\Notifications\ProfileApprovalNotification;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -14,12 +11,7 @@ class EventServiceProvider extends ServiceProvider
      * Register services.
      */
     protected $listen = [
-        ProfileSubmittedForApprovalNotification::class => [
-            ProfileSubmittedForApprovalListener::class,
-        ],
-        AccountApprovedEvent::class => [
-            AccountApprovedListener::class,
-        ],
+        ProfileApprovalNotification::class
     ];
 
     /**
