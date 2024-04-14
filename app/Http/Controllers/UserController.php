@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
@@ -20,7 +19,6 @@ class UserController extends Controller
         ]);
 
         $token = $user->createToken('api_token')->plainTextToken;
-
         return response()->json([
             'user' => $user,
             'token' => $token,
@@ -38,7 +36,6 @@ class UserController extends Controller
         }
 
         $user = Auth::user();
-
         $token = $user->createToken('api_token')->plainTextToken;
 
         return response()->json([
@@ -47,7 +44,7 @@ class UserController extends Controller
         ]);
 
 
-        
+
     }
 
     public function dashboard()

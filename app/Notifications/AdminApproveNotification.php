@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ProfileApprovalNotification extends Notification
+class AdminApproveNotification extends Notification
 {
     use Queueable;
 
@@ -35,10 +35,14 @@ class ProfileApprovalNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('Thank you for signin up')
-                    ->action('Notification Action', url('/profile'))
-                    ->line('Thank you for using our application!');
+            ->subject('Your account has been approved')
+            ->line('Congratulations! Your account has been approved.')
+            ->line('You can now login and access all the features.')
+            ->action('Login', url('/login'))
+            ->line('Thank you for using our application!');
     }
+
+
 
     /**
      * Get the array representation of the notification.

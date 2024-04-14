@@ -23,7 +23,7 @@ class LinkedInController extends Controller
             }
 
             // LinkedIn API URL to retrieve profile data
-            $url = 'https://api.linkedin.com/v2/posts';
+            $url = 'https://www.linkedin.com/developers/tools/oauth/redirect';
 
             // Create a Guzzle HTTP client
             $client = new Client();

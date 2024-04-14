@@ -25,8 +25,15 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');
-            // $table->foreign('country_id')->references('id')->on('countries');
-            // $table->foreign('city_id')->references('id')->on('cities');
+
+            // Add foreign key constraint conditionally based on table existence
+            if (Schema::hasTable('countries')) {
+                $table->foreign('country_id')->references('id')->on('countries')->onDelete('set null');
+            }
+            if (Schema::hasTable('cities')) {
+                $table->foreign('city_id')->references('id')->on('cities')->onDelete('set null');
+            }
+            
         });
     }
 

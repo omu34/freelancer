@@ -29,10 +29,9 @@ class StoreProfileRequest extends FormRequest
             'profilename' => 'required|unique:profiles',
             'country_id' => 'required',
             'city_id' => 'required',
-            'user_id'=>'required',
             'phone' => 'required|unique:profiles',
             'email' => 'required|email|unique:profiles',
-            'location'=>'required'
+            'location' => 'required'
         ];
     }
 
