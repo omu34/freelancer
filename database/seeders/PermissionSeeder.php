@@ -12,14 +12,16 @@ class PermissionSeeder extends Seeder
     /**
      * Run the database seeds.
      */
+
+
     public function run()
     {
-        Permission::create(['name' => 'approve_account']);
+        Permission::create(['name' => 'approve_profiles']);
         Permission::create(['name' => 'view_profiles']);
 
 
         $adminRole = Role::findByName('admin');
-        $adminRole->hasPermissionTo('approve_account');
+        $adminRole->hasPermissionTo('approve_profiles');
 
         $adminRole = Role::findByName('freelancer');
         $adminRole->hasPermissionTo('view_profiles');

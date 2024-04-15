@@ -38,7 +38,7 @@ class AdminApproveNotification extends Notification
             ->subject('Your account has been approved')
             ->line('Congratulations! Your account has been approved.')
             ->line('You can now login and access all the features.')
-            ->action('Login', url('/login'))
+            ->action('Login', url('/'))
             ->line('Thank you for using our application!');
     }
 

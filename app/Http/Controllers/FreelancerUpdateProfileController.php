@@ -98,7 +98,7 @@ class FreelancerUpdateProfileController extends Controller
     {
 
         // Implement authorization check here (e.g., using policies or middleware)
-        // if (!Auth::user()->hasPermissionTo('approve_profiles')) {
+        // if (!Auth::user()->hasPermissionTo('approve-profiles')) {
         //     return response()->json(['error' => 'Unauthorized to view all profiles'], 403);
         // }
 

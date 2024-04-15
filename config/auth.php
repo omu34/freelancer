@@ -12,24 +12,26 @@ return [
     | as required, but they're a perfect start for most applications.
     |
     */
+    'guards' => [
+        'api' => [
+            'driver' => 'sanctum', // Use Sanctum guard for API authentication
+            'provider' => 'users',
+            'hash' => false,
+        ],
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+
+
+    ],
 
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
     ],
 
-    'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
 
-        'api' => [
-            'driver' => 'sanctum', // Use Sanctum guard for API authentication
-            'provider' => 'users',
-            'hash' => false,
-        ],
-    ],
 
 
     /*
